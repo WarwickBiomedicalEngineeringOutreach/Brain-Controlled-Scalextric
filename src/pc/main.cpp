@@ -1,5 +1,7 @@
 #include <QCoreApplication>
 
+#include <QTimer>
+
 #include "./mindwavecontroller.h"
 #include "./arduinointerface.h"
 
@@ -42,6 +44,29 @@ int main(int argc, char *argv[]) {
 
         arduino.write(outputdata);
     });
+
+    QTimer *controller2 = new QTimer();
+    uint8_t controller2Value = 50;
+    controller2->setInterval(1000);
+
+    arduino.connect(controller2, &QTimer::timeout, [&](){
+        QByteArray outputdata;
+        outputdata.append(0x20);
+
+        if (controller2Value > maxSpeed) {
+            controller2Value = 50;
+        }
+        outputdata.append(controller2Value);
+
+        controller2Value++;
+
+        qDebug() << "Player Code: " << static_cast<uint8_t>(outputdata.at(0))
+                 << "Player Level: "<< static_cast<uint8_t>(outputdata.at(1));
+
+        arduino.write(outputdata);
+    });
+
+    controller2->start();
 
     return app.exec(); // start event loop
 }
