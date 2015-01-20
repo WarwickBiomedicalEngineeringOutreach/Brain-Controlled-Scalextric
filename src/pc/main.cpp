@@ -3,6 +3,8 @@
 #include "./mindwavecontroller.h"
 #include "./arduinointerface.h"
 
+const uint8_t maxSpeed= 70;
+
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
 
@@ -26,7 +28,19 @@ int main(int argc, char *argv[]) {
     // changed the connected signal to change the output data written to the arduino
     arduino.connect(&controller1, &MindWaveController::attentionDataChanged,
                        [&](uint16_t data){
-        arduino.write(QByteArray(1, data&0xFF));
+        QByteArray outputdata;
+        outputdata.append(0x10);
+
+        if (data > maxSpeed) {
+            outputdata.append(maxSpeed);
+        } else {
+            outputdata.append(data&0xFF);
+        }
+
+        qDebug() << "Player Code: " << static_cast<uint8_t>(outputdata.at(0))
+                 << "Player Level: "<< static_cast<uint8_t>(outputdata.at(1));
+
+        arduino.write(outputdata);
     });
 
     return app.exec(); // start event loop
