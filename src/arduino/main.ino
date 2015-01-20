@@ -35,7 +35,7 @@ void loop() {
 }
 
 void parseBuffer(uint bufferSize) {
-  if ( bufferSize % 2 == 0) {
+  if ( bufferSize % 2 != 0) {
       // buffer has bad size so return
       return;
   }
